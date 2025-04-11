@@ -1,0 +1,91 @@
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: jamesagbonz
+      MONGO_INITDB_ROOT_PASSWORD: jamesagbonz
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-db:/data/db
+      - mongo-configdb:/data/configdb
+
+  central:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        - APP_HOME=./backend/central
+    container_name: central
+    ports:
+      - "5006:5000"
+      - "8765:8765"
+    environment:
+      - ENV=dev
+      - MONGO_CONF_STR=mongodb+srv://jamesagbonz:jamesagbonz@ass2cluster0.cttf3.mongodb.net/?retryWrites=true&w=majority&appName=Ass2Cluster0
+      - MONGO_DB_NAME=mlxops_docker_demo
+      - FLASK_APP=/app/main.py
+
+  hyperk:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        - APP_HOME=./backend/dataset_service/hyper_kvasir
+    container_name: hyperk
+    ports:
+      - "5002:5000"
+    environment:
+      - ENV=dev
+      - FLASK_APP=/app
+
+  effnetv2s:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        - APP_HOME=./backend/model_service/effnetv2s
+    container_name: effnetv2s
+    ports:
+      - "5001:5000"
+    environment:
+      - ENV=dev
+      - FLASK_APP=/app
+      - KAGGLE_USERNAME=jamesagbonz
+      - KAGGLE_KEY= b7c9527a24303e1edfb7d5f98501564e
+      
+    volumes:
+      - model_svc:/app
+      - dataset_storaget:/root/autodl-tmp
+
+  model_eval:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        - APP_HOME=./backend/evaluation_service/model_eval
+    container_name: model_eval
+    ports:
+      - "5005:5000"
+    environment:
+      - ENV=dev
+      - FLASK_APP=/app
+      - KAGGLE_USERNAME=jamesagbonz
+      - KAGGLE_KEY= b7c9527a24303e1edfb7d5f98501564e
+    volumes:
+      - model_eval_svc:/app
+      - dataset_storaget:/root/autodl-tmp
+
+  web:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./frontend-ts
+    container_name: web
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_CENTRAL_URL=http://localhost:5006
+      - VITE_CENTRAL_HOST=localhost
+
+volumes:
+  mongo-db:
+  mongo-configdb:
+  model_svc:
+  model_eval_svc:
+  dataset_storaget:

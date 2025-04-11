@@ -1,0 +1,7 @@
+{
+  "executor_info": {
+    "executor_name": "dummy_xai",
+    "executor_type": "xai",
+    "executor_info": {}
+  }
+}

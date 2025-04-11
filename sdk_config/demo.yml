@@ -1,0 +1,49 @@
+central: http://127.0.0.1:5006
+services:
+  dataset:
+    hyper_kvasir: http://127.0.0.1:5002
+  model:
+    effnetv2s: http://127.0.0.1:5001
+  # model_evaluation:
+  #   model_eval: http://127.0.0.1:5005
+
+configuration:
+  dataset:
+    - name: basic_dataset_config
+      content: |
+        img_size: 128
+        batch_size: 128
+        data_loader_kwargs:
+          num_workers: 12
+  model:
+    - name: basic_model_config
+      content: |
+        model_key: pytorch_efficientnet_v2_s
+        optimizer_hparams: {
+          lr: 0.0001,
+          weight_decay: 4.0e-5
+        }
+        lr_scheduler_key: MultiStepLR
+        lr_scheduler_hparams: { milestones: [45, 65], gamma: 0.1 }
+  trainer:
+    - name: basic_trainer_config
+      content: |
+        callbacks:
+        - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+          init_args:
+            monitor: val_acc
+            save_top_k: 1
+            filename: best-{epoch}-{val_acc:.4f}
+            mode: max
+            save_weights_only: True
+        max_epochs: 80
+
+task_sheet:
+  training:
+    - name: basic_training_task
+      db_service: hyper_kvasir
+      model_service: effnetv2s
+      dataset_config: [basic_dataset_config]
+      model_config: basic_model_config
+      trainer_config: basic_trainer_config
+      task_function_key: training

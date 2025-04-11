@@ -1,0 +1,77 @@
+central: http://127.0.0.1:5006
+services:
+  dataset:
+    dummy_dataset: http://127.0.0.1:25002
+  model:
+    dummy_model: http://127.0.0.1:25001
+  model_evaluation:
+    dummy_model_eval: http://127.0.0.1:25005
+  xai:
+    dummy_xai: http://127.0.0.1:25003
+  xai_evaluation:
+    dummy_xai_eval: http://127.0.0.1:25004
+
+configuration:
+  dataset:
+    - name: dummy_dataset_config
+      content: |
+        img_size: 224
+        batch_size: 64
+  model:
+    - name: dummy_model_config
+      content: |
+        model_key: dummy2
+  trainer:
+    - name: dummy_trainer_config
+      content: |
+        no_train: true
+
+task_sheet:
+  training:
+    - name: dummy_training_task
+      db_service: dummy_dataset
+      model_service: dummy_model
+      dataset_config: [dummy_dataset_config]
+      model_config: dummy_model_config
+      trainer_config: dummy_trainer_config
+      task_function_key: training
+  model_evaluation:
+    - name: dummy_model_evaluation_task
+      db_service: dummy_dataset
+      model_service: dummy_model
+      model_evaluation_service: dummy_model_eval
+      dataset_config: [dummy_dataset_config]
+      model_config: dummy_model_config
+      trainer_config: dummy_trainer_config
+      task_function_key: dummy_model_eval
+  xai:
+    - name: dummy_xai_task
+      db_service: dummy_dataset
+      model_service: dummy_model
+      xai_service: dummy_xai
+      dataset_config: [dummy_dataset_config]
+      model_config: dummy_model_config
+      trainer_config: dummy_trainer_config
+      task_function_key: dummy_xai
+  xai_evaluation:
+    - name: dummy_xai_evaluation_task
+      db_service: dummy_dataset
+      model_service: dummy_model
+      xai_service: dummy_xai
+      xai_evaluation_service: dummy_xai_eval
+      dataset_config: [dummy_dataset_config]
+      model_config: dummy_model_config
+      trainer_config: dummy_trainer_config
+      task_function_key: dummy_xai_eval
+
+pipeline_sheet:
+  training_pipeline:
+    - name: dummy_training_pipeline
+      train: dummy_training_task
+      model_evaluation: dummy_model_evaluation_task
+  training_xai_pipeline:
+    - name: dummy_training_xai_pipeline
+      train: dummy_training_task
+      xai: dummy_xai_task
+      model_evaluation: dummy_model_evaluation_task
+      xai_evaluation: dummy_xai_evaluation_task

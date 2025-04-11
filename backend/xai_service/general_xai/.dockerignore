@@ -1,0 +1,20 @@
+# Ignore the .git folder
+.git
+
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore environment files
+.env
+
+# Ignore node_modules (if present in the project)
+node_modules
+
+# Ignore Dockerfiles (if you don't need them in the build context)
+#Dockerfile*
+
+# Ignore the build directories (such as logs or tmp folders)
+tmp/
+build/

@@ -1,0 +1,7 @@
+{
+  "executor_info": {
+    "executor_name": "dummy_dataset",
+    "executor_type": "dataset",
+    "executor_info": {}
+  }
+}

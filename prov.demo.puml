@@ -1,0 +1,120 @@
+@startuml
+!define PROV https://www.w3.org/ns/prov#
+title MLXOps XAI Training Pipeline Provenance Model
+skinparam class {
+  BackgroundColor<<Entity>> LightBlue
+  BackgroundColor<<Activity>> LightGreen
+  BackgroundColor<<Agent>> LightYellow
+  BorderColor Black
+  ArrowColor Black
+}
+'=============================================
+' Entities (Configurations, Models, Datasets)
+'=============================================
+class "Dataset Config" as Dataset_Config <<Entity>> {
+  +config_id: String
+  +config_name: String
+  +config_type: String
+  +content: String
+}
+class "Trainer Config" as Trainer_Config <<Entity>> {
+  +config_id: String
+  +config_name: String
+  +config_type: String
+  +content: String
+}
+class "Model Config" as Model_Config <<Entity>> {
+  +config_id: String
+  +config_name: String
+  +config_type: String
+  +content: String
+}
+class "Training Task Sheet" as Training_Task_Sheet <<Entity>> {
+  +task_id: String
+  +task_name: String
+  +task_type: String
+}
+class "Evaluation Task Sheet" as Evaluation_Task_Sheet <<Entity>> {
+  +task_id: String
+  +task_name: String
+  +task_type: String
+}
+class "Pipeline Sheet" as Pipeline_Sheet <<Entity>> {
+  +pipeline_id: String
+  +pipeline_name: String
+  +pipeline_type: String
+  +create_at: Float
+}
+'=============================================
+' Activities (Pipeline Execution, Training, Evaluation)
+'=============================================
+class "Pipeline Execution" as Pipeline_Execution <<Activity>> {
+  +execution_id: String
+  +pipeline_name: String
+  +pipeline_type: String
+  +execution_time: Float
+}
+class "Training Task Execution" as Training_Task_Execution <<Activity>> {
+  +execution_id: String
+  +task_name: String
+  +task_type: String
+  +status: String
+}
+class "Evaluation Task Execution" as Evaluation_Task_Execution <<Activity>> {
+  +execution_id: String
+  +task_name: String
+  +task_type: String
+  +status: String
+}
+'=============================================
+' Agents (Executors & Services)
+'=============================================
+class "Dataset Executor" as Dataset_Executor <<Agent>> {
+  +executor_id: String
+  +executor_name: String
+  +register_time: Float
+  +endpoint_url: URL
+}
+class "Model Training Executor" as Model_Training_Executor <<Agent>> {
+  +executor_id: String
+  +executor_name: String
+  +register_time: Float
+  +endpoint_url: URL
+}
+class "Model Evaluation Executor" as Model_Eval_Executor <<Agent>> {
+  +executor_id: String
+  +executor_name: String
+  +register_time: Float
+  +endpoint_url: URL
+}
+'=============================================
+' Training Task Provenance
+Training_Task_Execution --|> Training_Task_Sheet: "generatedBy"
+Training_Task_Execution --> Model_Training_Executor: "executedBy"
+Model_Config --> Training_Task_Sheet: "usedBy"
+Trainer_Config --> Training_Task_Sheet: "usedBy"
+Dataset_Config --> Training_Task_Sheet: "usedBy"
+' Training execution does not run on the dataset executor,
+' but it requries the dataset source code from the dataset executor
+Dataset_Executor --> Training_Task_Execution: "usedBy"
+'=============================================
+
+'=============================================
+' Evaluation Task Provenance
+Evaluation_Task_Execution --|> Evaluation_Task_Sheet: "generatedBy"
+Evaluation_Task_Execution --> Model_Eval_Executor: "executedBy"
+Model_Config --> Evaluation_Task_Sheet: "usedBy"
+Dataset_Config --> Evaluation_Task_Sheet: "usedBy"
+Dataset_Executor --> Evaluation_Task_Execution: "usedby"
+Training_Task_Execution --> Evaluation_Task_Execution: "usedBy"
+'=============================================
+
+'=============================================
+' Pipeline Provenance
+Training_Task_Sheet --> Pipeline_Sheet: "usedBy"
+Evaluation_Task_Sheet --> Pipeline_Sheet: "usedBy"
+Pipeline_Execution --|> Pipeline_Sheet: "generatedBy"
+Training_Task_Execution --> Pipeline_Execution: "containedBy"
+Evaluation_Task_Execution --> Pipeline_Execution: "containedBy"
+'=============================================
+@enduml

@@ -1,0 +1,12 @@
+Flask >= 2.2
+
+Pillow
+numpy
+requests
+torch
+torchvision
+torchaudio
+flask-cors
+tqdm
+opencv-python
+matplotlib

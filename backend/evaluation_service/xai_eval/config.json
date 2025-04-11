@@ -1,0 +1,7 @@
+{
+  "executor_info": {
+    "executor_name": "XAI_Eval",
+    "executor_type": "xai_evaluation",
+    "executor_info": {}
+  }
+}

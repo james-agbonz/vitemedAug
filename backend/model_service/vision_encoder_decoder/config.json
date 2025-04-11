@@ -1,0 +1,8 @@
+{
+  "executor_info": {
+    "executor_name": "VisionEncoderDecoder",
+    "executor_endpoint_url": "http://127.0.0.1:5099",
+    "executor_type": "model",
+    "executor_info": {}
+  }
+}

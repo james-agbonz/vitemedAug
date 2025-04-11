@@ -1,0 +1,8 @@
+{
+    "executor_info": {
+        "executor_name": "NIH-CXR-LT",
+        "executor_endpoint_url": "http://127.0.0.1:5015",
+        "executor_type": "dataset",
+        "executor_info": {}
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "executor_info": {
+    "executor_name": "dummy_model_eval",
+    "executor_type": "model_evaluation",
+    "executor_info": {}
+  }
+}

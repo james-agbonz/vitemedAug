@@ -1,0 +1,8 @@
+{
+    "executor_info": {
+        "executor_name": "ISIC2019",
+        "executor_endpoint_url": "http://127.0.0.1:5012",
+        "executor_type": "dataset",
+        "executor_info": {}
+    }
+}

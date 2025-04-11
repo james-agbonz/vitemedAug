@@ -1,0 +1,66 @@
+central: http://127.0.0.1:5006
+services:
+  dataset:
+    isic_multimodal: http://127.0.0.1:5388
+  model:
+    isic_champion_model: http://127.0.0.1:5221
+  model_evaluation:
+    model_eval: http://127.0.0.1:5005
+  xai:
+    xai_pack: http://127.0.0.1:5003
+  xai_evaluation:
+    xai_eval: http://127.0.0.1:5004
+
+configuration:
+  dataset:
+    - name: basic_dataset_config
+      content: |
+        img_size: 224
+        batch_size: 64
+
+  model:
+    - name: basic_model_config
+      content: |
+        model_key: dummy2
+
+  trainer:
+    - name: no_train_config
+      content: |
+        no_train: true
+        callbacks:
+          - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+            init_args:
+              monitor: val_acc
+              save_top_k: 1
+              filename: best-{epoch}-{val_acc:.4f}
+              mode: max
+              save_weights_only: True
+
+task_sheet:
+  training:
+    - name: no_training
+      db_service: isic_multimodal
+      model_service: isic_champion_model
+      dataset_config: [basic_dataset_config]
+      model_config: basic_model_config
+      trainer_config: no_train_config
+      task_function_key: training
+  model_evaluation:
+    - name: model_uncertainty_eval
+      db_service: isic_multimodal
+      model_service: isic_champion_model
+      model_evaluation_service: model_eval
+      dataset_config: [basic_dataset_config]
+      trainer_config: no_train_config
+      model_config: basic_model_config
+      task_function_key: brier_score_eval
+      previous_task_ticket: MA0R7bmeamg5zk1.L5L8K7OBVK
+  xai_evaluation:
+    - name: grad_cam_eval
+      db_service: isic_multimodal
+      model_service: isic_champion_model
+      xai_service: xai_pack
+      xai_evaluation_service: xai_eval
+      dataset_config: [basic_dataset_config]
+      task_function_key: _xai_eval
+      previous_task_ticket: MA0R7bmeamg5zk1.L5L8K7OBVK

@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-db:/data/db
+      - mongo-configdb:/data/configdb
+
+  # Service 1 (central)
+  central:
+    build:
+      context: ./backend/central # Root of your project (This should be the Backend folder)
+      dockerfile: Dockerfile # Corrected path to Service 1 Dockerfile
+    environment:
+      MONGO_DB_NAME: ${MONGO_DB_NAME:-docker_xaidb}
+      MONGO_CONF_STR: ${MONGO_CONF_STR:-mongodb://root:example@mongo:27017/?authMechanism=DEFAULT}
+      FLASK_APP: ${FLASK_APP_CENTRAL:-main.py}
+      FLASK_RUN_PORT: ${FLASK_RUN_PORT_CENTRAL:-5006}
+      CENTRAL_ADDR: ${CENTRAL_ADDR_CENTRAL:-http://localhost:5006}
+    ports:
+      - "5006:5006"
+
+  hyperk:
+    build:
+      context: ./backend/dataset_service
+      dockerfile: dataset_service_Dockerfile
+    environment:
+      MONGO_DB_NAME: ${MONGO_DB_NAME:-docker_xaidb}
+      MONGO_CONF_STR: ${MONGO_CONF_STR:-mongodb://root:example@mongo:27017/?authMechanism=DEFAULT}
+      FLASK_APP: ${FLASK_APP_HYPERK:-hyper_kvasir/main.py}
+      FLASK_RUN_PORT: ${FLASK_RUN_PORT_HYPERK:-5002}
+      CENTRAL_ADDR: ${CENTRAL_ADDR_HYPERK:-http://central:5006}
+    ports:
+      - "5002:5002"
+
+volumes:
+  mongo-db:
+  mongo-configdb:

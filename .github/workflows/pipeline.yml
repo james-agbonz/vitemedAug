@@ -14,6 +14,26 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+    
+    - name: Free disk space
+      run: |
+        # Display initial disk space
+        df -h
+        
+        # Remove unnecessary large packages
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/share/boost
+        sudo rm -rf /usr/local/lib/android
+        
+        # Clear Docker cache
+        docker system prune -af
+        
+        # Clear apt cache
+        sudo apt clean
+        
+        # Display free space after cleanup
+        df -h
       
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -39,27 +59,36 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # Remove the problematic installation command
-        # pip install -e .
         
-    - name: Build and start central service
-      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml up central -d --build
+    - name: Build central service
+      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml build central
       
-    - name: Build and start dataset and model services
-      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml up effnetv2s hyperk -d --build
+    - name: Start central service
+      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml up central -d
+      
+    - name: Build dataset and model services
+      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml build effnetv2s hyperk
+      
+    - name: Start dataset and model services
+      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml up effnetv2s hyperk -d
       
     - name: Register and apply SDK configurations
       run: |
-        # Adjust this command if mlxops_sdk.py is not in the PATH
         python ./mlxops_sdk.py -f ./sdk_config/docker_local.yml reg
         python ./mlxops_sdk.py -f ./sdk_config/docker_local.yml apply
         python ./mlxops_sdk.py -f ./sdk_config/docker_local.yml ts apply
       
-    - name: Build and start web frontend
-      run: docker compose -f docker-compose.yaml up web -d --build
+    - name: Build web frontend
+      run: docker compose -f docker-compose.yaml build web
       
-    - name: Build and start model evaluation service
-      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml up model_eval -d --build
+    - name: Start web frontend
+      run: docker compose -f docker-compose.yaml up web -d
+      
+    - name: Build model evaluation service
+      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml build model_eval
+      
+    - name: Start model evaluation service
+      run: docker compose --env-file ./.kaggle.env -f docker-compose.yaml up model_eval -d
       
     - name: Check running containers
       run: docker ps -a
